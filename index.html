@@ -376,17 +376,124 @@
     </div>
     </div>
     </section>
-
     
-
-
-
-
 
   </main>
 
 
 
+  <!-- Functionalities -->
+  <script>
+    // Get all necessary DOM elements
+    const heartCountEl = document.getElementById('heart-count');
+    const coinCountEl = document.getElementById('coin-count');
+    const copyCountEl = document.getElementById('copy-count');
+    const callBtns = document.querySelectorAll('.call-btn');
+    const favBtns = document.querySelectorAll('.fav-btn');
+    const copyBtns = document.querySelectorAll('.copy-btn');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+    const callHistoryContainer = document.getElementById('call-history-container');
+    const messageModal = document.getElementById('message-modal');
+    const modalText = document.getElementById('modal-text');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    // Function to show the custom modal
+    function showMessage(message) {
+      modalText.textContent = message;
+      messageModal.style.display = 'flex';
+    }
+
+    // Close button for the modal
+    modalCloseBtn.addEventListener('click', () => {
+      messageModal.style.display = 'none';
+    });
+
+    // Event listener for favorite buttons
+    favBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        let currentCount = parseInt(heartCountEl.textContent);
+        heartCountEl.textContent = currentCount + 1;
+        // Optional: Change heart icon color to indicate it's favorited
+        btn.querySelector('i').classList.remove('text-gray-400', 'fa-regular');
+        btn.querySelector('i').classList.add('text-red-500', 'fa-solid');
+      });
+    });
+
+    // Event listener for copy buttons
+    copyBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const numberToCopy = btn.dataset.number;
+        if (numberToCopy) {
+          // Create a temporary input element to copy the text
+          const tempInput = document.createElement('input');
+          tempInput.value = numberToCopy;
+          document.body.appendChild(tempInput);
+          tempInput.select();
+          document.execCommand('copy');
+          document.body.removeChild(tempInput);
+
+          // Show a message and update copy count
+          showMessage('কপি হয়েছে!');
+          let currentCount = parseInt(copyCountEl.textContent);
+          copyCountEl.textContent = currentCount + 1;
+        }
+      });
+    });
+
+    // Event listener for call buttons
+    callBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        let currentCoins = parseInt(coinCountEl.textContent);
+        if (currentCoins >= 20) {
+          // Decrease coins
+          coinCountEl.textContent = currentCoins - 20;
+
+          // Get service name and phone number
+          const serviceName = btn.dataset.service;
+          const phoneNumber = btn.dataset.phone;
+
+          // Show message box with service name and number
+          showMessage(`${serviceName} - ${phoneNumber}`);
+
+          // Add to call history
+          const now = new Date();
+          const timeString = now.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+          const newHistoryItem = document.createElement('div');
+          newHistoryItem.className = 'bg-gray-100 rounded-md p-4 mb-2 shadow-sm';
+          newHistoryItem.innerHTML = `
+                          <div class="flex justify-between items-center">
+                              <div>
+                                  <h1 class="font-semibold">${btn.parentElement.parentElement.querySelector('h1').textContent}</h1>
+                                  <p class="text-sm text-gray-600">${phoneNumber}</p>
+                              </div>
+                              <div>
+                                  <p class="text-xs text-gray-500">${timeString}</p>
+                              </div>
+                          </div>
+                      `;
+
+          // If "No calls made yet" message exists, remove it
+          const noCallsMessage = callHistoryContainer.querySelector('.text-gray-500');
+          if (noCallsMessage) {
+            noCallsMessage.remove();
+          }
+
+          // Add new item to the top of the history list
+          callHistoryContainer.prepend(newHistoryItem);
+
+        } else {
+          showMessage('আপনার পর্যাপ্ত কয়েন নেই।');
+        }
+      });
+    });
+
+    // Event listener for clearing call history
+    clearHistoryBtn.addEventListener('click', () => {
+      callHistoryContainer.innerHTML = '<p class="text-center text-gray-500">No calls made yet.</p>';
+    });
+
+  </script>
 
 
 </body>
